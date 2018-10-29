@@ -124,13 +124,6 @@ if allTargetsFunctioning(targetList) == True :
 else :
     print 'One of the targets is not functioning...Please Check'
     sys.exit(3)
-
-try:
-
-    print "script returns SUCCESS"   
-except Exception, e:
-    print e 
-    print "Error while trying to save and/or activate!!!"
-    dumpStack()
-    raise 
     
+disconnect()
+exit()
