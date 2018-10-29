@@ -1,3 +1,4 @@
+from site import exit
 
 # Conditionally import wlstModule only when script is executed with jython
 if __name__ == '__main__': 
@@ -124,6 +125,8 @@ if allTargetsFunctioning(targetList) == True :
 else :
     print 'One of the targets is not functioning...Please Check'
     sys.exit(3)
-    
+
+print "script returns SUCCESS"   
+
 disconnect()
-exit()
+exit()    
