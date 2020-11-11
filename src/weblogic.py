@@ -6,9 +6,9 @@ import ntpath;
 
 
 # Conditionally import wlstModule only when script is executed with jython
-if __name__ == '__main__': 
+if __name__ == '__main__':
     from wlstModule import *  # @UnusedWildImport
-    
+
 class Error(Exception):
     """Base class for other exceptions"""
     pass
@@ -54,15 +54,15 @@ def getRunningServerNames():
         except:
             print 'Exception occurred while getting server state for ' + server.getName()
             dumpStack()
-    return running_servers       
-    
+    return running_servers
+
 def doesServerExist(serverName):
     serverFound = False
     serverNames = getRunningServerNames()
     for server in serverNames:
         if (server.getName() == serverName):
             serverFound = True
-    return serverFound        
+    return serverFound
 
 def isServerActive(serverName):
     domainRuntime()
@@ -70,14 +70,14 @@ def isServerActive(serverName):
         cd("/ServerRuntimes/" + serverName)
         serverActive = True
     except WLSTException:
-        serverActive = False     
+        serverActive = False
     return serverActive
 
 def allTargetsFunctioning(targetList):
     for target in targetList:
         if isServerActive(target) is not True or doesServerExist(target) is not True :
             return False
-    return True   
+    return True
 
 def getFilenameFromPath(path):
     head, tail = ntpath.split(path)
@@ -95,9 +95,9 @@ def isAppDeployed(app) :
         appList = cmo.getAppDeployments()
         for appName in appList:
             if (appName.getName() == app):
-                appFound = True 
-    except WLSTException:  
-        return False            
+                appFound = True
+    except WLSTException:
+        return False
     return appFound
 
 def getAppTargets(app):
@@ -111,8 +111,8 @@ def getAppTargets(app):
 def getAppName(application):
     appArr = application.split('.')
     return appArr[0]
-        
-        
+
+
 def read_properties_file(path):
     prop_file = open(path, "r")
     prop_dict = dict()
@@ -162,19 +162,19 @@ def multi_getattr(obj, attr, default=None):
 class operation:
     def deploy(self):
         print 'starting the script ....'
-        
+
         try:
             applications = sys.argv[2]
         except:
             print 'No source file provided for deployment'
             return
-        try:    
+        try:
             targets = sys.argv[3]
         except Exception, e:
             print 'No target specified for deployment'
-            return    
+            return
         targetList = targets.split(',')
-        
+
         applicationList = applications.split(',')
         connect(adminUsername, adminPassword, adminUrl)
         if allTargetsFunctioning(targetList) == True :
@@ -187,10 +187,10 @@ class operation:
                         try :
                             deploy(application, appPath, targets, libraryModule='true')
                         except Exception, e:
-                            print e 
+                            print e
                             print "Error while deploying library" + application
                             sys.exit(3)
-                        continue    
+                        continue
                     appName = getAppName(application)
                     if isAppDeployed(appName) is True:
                         try:
@@ -201,9 +201,9 @@ class operation:
                             # print e
                             # dumpStack()
                             sys.exit(3)
-                            
+
                         try:
-                            print 'Undeploying ' + appName    
+                            print 'Undeploying ' + appName
                             undeploy(appName)
                         except Exception, e:
                             print 'Exception occured while undeploying ' + application
@@ -211,12 +211,12 @@ class operation:
                             try :
                                 undo('true', 'y')
                             except Exception:
-                                print 'Failed to revert after undeploying ' + application + '...Skipping' 
+                                print 'Failed to revert after undeploying ' + application + '...Skipping'
                             # dumpStack()
                             sys.exit(3)
-                        
+
                     try:
-                        print 'Deploying ' + appName     
+                        print 'Deploying ' + appName
                         deploy(appName, appPath, targets)
                     except Exception, e:
                             print 'Exception occured while deploying ' + application
@@ -224,10 +224,10 @@ class operation:
                             try :
                                 undo('true', 'y')
                             except Exception:
-                                print 'Failed to revert after deploying ' + application + '...Skipping'    
+                                print 'Failed to revert after deploying ' + application + '...Skipping'
                             # dumpStack()
                             sys.exit(3)
-                        
+
                     try:
                         print 'Starting ' + appName
                         startApplication(appName)
@@ -236,30 +236,30 @@ class operation:
                         # print e
                         # dumpStack()
                         sys.exit(3)
-                                   
+
                 except Exception, e:
-                        print e 
-                        print "Unhandled Exception occurred while deploying " + application   
+                        print e
+                        print "Unhandled Exception occurred while deploying " + application
                         dumpStack()
                         sys.exit(3)
         else :
             print 'One of the targets is not functioning...Please Check'
             sys.exit(3)
-    
-        print "script returns SUCCESS"   
+
+        print "script returns SUCCESS"
         disconnect()
-        
+
     def startAdmin(self):
         try:
             nmConnect (nmUsername, nmPassword, nmListenAddress, nmListenPort, domainName, domainHome, 'ssl', 'true')
             if  (nmServerStatus(adminServer) == 'RUNNING') :
                 raise ServerAlreadyRunningException
-            else:    
+            else:
                 nmStart('AdminServer')
         except ServerAlreadyRunningException:
             print 'Admin Server is already Running'
             print "script returns FAILURE"
-            
+
     def start(self):
         try :
             arg = sys.argv[2]
@@ -276,7 +276,7 @@ class operation:
                 nmConnect (nmUsername, nmPassword, nmListenAddress, nmListenPort, domainName, domainHome, 'ssl', 'true')
                 if  (nmServerStatus(server) == 'RUNNING') :
                     raise ServerAlreadyRunningException
-                else:    
+                else:
                     nmStart(server)
             except ServerAlreadyRunningException:
                 print 'ERROR:' + server + ' is already Running'
@@ -286,7 +286,7 @@ class operation:
             try :
                 sys.argv[3]
             except IndexError:
-                print 'ERROR : No/Less argument(s) provided'   
+                print 'ERROR : No/Less argument(s) provided'
             if sys.argv[3] != '-name':
                 print 'ERROR : Invalid syntax'
                 return
@@ -294,8 +294,8 @@ class operation:
                 try :
                     sys.argv[4]
                 except IndexError:
-                    print 'ERROR : No/Less argument(s) provided'   
-            
+                    print 'ERROR : No/Less argument(s) provided'
+
                 if sys.argv[4] == None :
                     print 'ERROR : Application/Library Name not provided'
                     return
@@ -304,8 +304,8 @@ class operation:
                     return
                 else :
                     self.startApp(sys.argv[4])
-            
-            
+
+
     def startApp(self, appNames):
             try:
                 print adminUsername
@@ -313,14 +313,14 @@ class operation:
                 connect(adminUsername, adminPassword, adminUrl)
                 print 'Connected to Weblogic Server'
             except Exception, e:
-                print e 
+                print e
                 print 'Failed to connect to weblogic server '
                 print "script returns FAILURE"
                 sys.exit(3)
-             
+
             try:
                 appFound = False
-                cd ('AppDeployments')  
+                cd ('AppDeployments')
                 appList = cmo.getAppDeployments()
                 print appList
                 appNamesArr = appNames.split(',')
@@ -333,13 +333,13 @@ class operation:
                                 print 'Application/Library Already Running'
                             except:
                                 print 'Going to start ' + appName
-                                startApplication(appName)   
+                                startApplication(appName)
                     if appFound == False:
                         print 'ERROR : ' + appName + ' Application/Library Not Deployed in WL Console'
-                        return 
+                        return
             except WLSTException:
-                print 'ERROR : Unhandeled Exception Occurred'           
-                            
+                print 'ERROR : Unhandeled Exception Occurred'
+
 
     def stop(self):
         try :
@@ -351,19 +351,19 @@ class operation:
             shutdown(server, 'Server', 'true', 1000, force='true', block='true')
         except:
             print 'Exception Occurred while shutting down'
-   
+
     def stopAdmin(self):
         try:
             shutdown(adminServer, 'Server', 'true', 1000, force='true', block='true')
         except:
             print 'Exception Occurred while shutting down'
-            
-    def startDomain(self):            
+
+    def startDomain(self):
         try:
             print 'Going to start Node Manager'
             if self.nm_status() == 'Reachable' :
                 print 'Node Manager is Already Running'
-            elif self.nm_status() == 'Inactive' :    
+            elif self.nm_status() == 'Inactive' :
                 startNodeManager(verbose='true', NodeManagerHome=domainHome + os.sep + 'nodemanager', ListenPort=nmListenPort, ListenAddress=nmListenAddress)
             else :
                 print 'ERROR : Node Manager Status is unknown'
@@ -371,29 +371,29 @@ class operation:
             try:
                 self.startAdmin()
             except ServerAlreadyRunningException:
-                print 'Admin Server is already Running'     
-            print "script returns SUCCESS"   
+                print 'Admin Server is already Running'
+            print "script returns SUCCESS"
         except Exception, e:
-            print e 
+            print e
             print "Error while trying to save and/or activate!!!"
             dumpStack()
-            # raise 
-            
+            # raise
+
     def shutdownServer(self, serverName):
         try:
             shutdown(serverName, 'Server', 'true', 1000, force='true', block='true')
         except:
             print 'Exception Occurred while shutting down'
             sys.exit(3)
-            
-    def connect(self):              
+
+    def connect(self):
         try:
             connect(adminUsername, adminPassword, adminUrl)
         except:
             print 'Failed to connect'
             return
         disconnect()
-            
+
     def stopDomain(self):
         try:
             connect(adminUsername, adminPassword, adminUrl)
@@ -402,14 +402,14 @@ class operation:
         except:
             print 'Failed to get servers list'
             return
-                         
+
         try:
             #connect(adminUsername, adminPassword, adminUrl)
             nmConnect (nmUsername, nmPassword, nmListenAddress, nmListenPort, domainName, domainHome, 'ssl', 'true')
         except:
             print 'Failed to connect to Node Manager'
             return
-            
+
         try:
             for server in servers:
                     serverStatus = nmServerStatus(server.getName())
@@ -418,49 +418,49 @@ class operation:
                         #self.shutdownServer(server.getName())
                         nmKill(server.getName())
             try:
-                if nmServerStatus(adminServer) == 'RUNNING' :  
-                        print 'Going to shutdown AdminServer'      
-                        #shutdown(adminServer, 'Server', 'true', 1000, force='true', block='true')            
+                if nmServerStatus(adminServer) == 'RUNNING' :
+                        print 'Going to shutdown AdminServer'
+                        #shutdown(adminServer, 'Server', 'true', 1000, force='true', block='true')
                         nmKill(adminServer)
                 else :
                         print 'Admin Server is not running'
-                        print 'Current Status is ' + serverStatus        
+                        print 'Current Status is ' + serverStatus
             except :
-                print 'Failed to stop ' + adminServer                        
-            self.stopNM()            
-            print "script returns SUCCESS"   
+                print 'Failed to stop ' + adminServer
+            self.stopNM()
+            print "script returns SUCCESS"
         except Exception, e:
-            print e 
+            print e
             print "Error Occurred!!!"
             dumpStack()
-            sys.exit(3)     
-        
+            sys.exit(3)
+
     def startNM(self):
         try:
             startNodeManager(verbose='true', NodeManagerHome=domainHome + os.sep + 'nodemanager', ListenPort=nmListenPort, ListenAddress=nmListenAddress)
-            print "script returns SUCCESS"   
+            print "script returns SUCCESS"
         except Exception, e:
-            print e 
+            print e
             print "Error while trying to start Node Manager!!!"
-     
+
     def stopNM(self):
         try:
             nmConnect (nmUsername, nmPassword, nmListenAddress, nmListenPort, domainName, domainHome, 'SSL')
             stopNodeManager()
-            print "script returns SUCCESS"   
+            print "script returns SUCCESS"
         except Exception, e:
-            print e 
+            print e
             print "Error while trying to stop Node Manager!!!"
-       
-       
+
+
     def monitor(self):
         print 'starting the script ....'
-        
+
         try:
             connect(adminUsername, adminPassword, adminUrl)
             print 'Connected to Weblogic Server'
         except Exception, e:
-            print e 
+            print e
             print 'Failed to connect to weblogic server '
             print "script returns FAILURE"
             sys.exit(3)
@@ -481,7 +481,7 @@ class operation:
                 # this typically means the server is not active, just ignore
                 # print e
                 pass
-            
+
     def checkHealth(self, serverName):
         while 1:
             slBean = self.getSLCRT(serverName)
@@ -490,20 +490,20 @@ class operation:
             # if status != "RUNNING":
             #  print 'Starting server ' + serverName
             #  start(serverName, block="true")
-            time.sleep(5) 
-    
+            time.sleep(5)
+
     def nm_status(self):
         NMstatus = os.system('jps |grep -i nodemanager|grep -v grep')
         if NMstatus == 0:
                 return 'Reachable'
         else:
                 return 'Inactive'
-    
+
     def getSLCRT(self, svrName):
         domainRuntime()
         slrBean = cmo.lookupServerLifecycleRuntime(svrName)
         return slrBean
-    
+
     def monitorJVMHeapSize(self):
         # waitTime=300000
         THRESHOLD = 100000000
@@ -524,8 +524,8 @@ class operation:
                     print 'WARNING: The HEAPSIZE is Greater than the Threshold'
                 else:
                     print heapSize
-            java.lang.Thread.sleep(1800000)   
-       
+            java.lang.Thread.sleep(1800000)
+
 
 try:
     # os.environ['DOMAIN_HOME'] = 'C:\\Oracle\\Middleware_JDev12c\\Oracle_Home\\user_projects\\domains\\base_domain'
@@ -538,7 +538,7 @@ try:
     nmUsername = doc.getElementsByTagName('node-manager-username')[0].firstChild.data
     service = weblogic.security.internal.SerializedSystemIni.getEncryptionService(domainHome)
     encryption = weblogic.security.internal.encryption.ClearOrEncryptedService(service)
-    nmPassword = encryption.decrypt(doc.getElementsByTagName('node-manager-password-encrypted')[0].firstChild.data) 
+    nmPassword = encryption.decrypt(doc.getElementsByTagName('node-manager-password-encrypted')[0].firstChild.data)
     properties = read_properties_file(
             os.environ.get('DOMAIN_HOME') + os.sep + 'nodemanager' + os.sep + 'nodemanager.properties')
     nmListenPort = properties.get('ListenPort')
@@ -557,24 +557,24 @@ try:
                 if server.getElementsByTagName('listen-address')[0].firstChild != None :
                     adminListenAddress = server.getElementsByTagName('listen-address')[0].firstChild.data
                 else:
-                    adminListenAddress = socket.gethostname()    
+                    adminListenAddress = socket.gethostname()
             except Exception, e:
                 adminListenAddress = socket.gethostname()
-            try:        
+            try:
                 ssl_enabled = server.getElementsByTagName('ssl')[0].getElementsByTagName('enabled')[0].firstChild.data
             except Exception, e:
-                ssl_enabled = 'false'    
+                ssl_enabled = 'false'
             if ssl_enabled == 'true' :
                 adminListenPort = server.getElementsByTagName('ssl')[0].getElementsByTagName('listen-port')[0].firstChild.data
                 adminConnectProtocol = 't3s'
-            else:    
+            else:
                 for child in server.childNodes:
                     if child.nodeType == child.ELEMENT_NODE and (child.tagName == 'listen-port'):
                         if child.firstChild != None:
                             adminListenPort = child.firstChild.data
                         else:
                             adminListenPort = '7001'
-                    adminConnectProtocol = 't3'    
+                    adminConnectProtocol = 't3'
     adminUrl = adminConnectProtocol + "://" + adminListenAddress + ':' + adminListenPort
     # print 'Admin URL is ' + adminUrl
     method = sys.argv[1]
